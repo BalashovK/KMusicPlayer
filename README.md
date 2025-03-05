@@ -19,7 +19,7 @@ This is my favorite way of playing music while programming:
 ## Wishlist
 
 * Show song length in minutes:seconds 
-* show elapsed length 
+* Show elapsed time / time left
 
 
 
