@@ -107,7 +107,7 @@ namespace KMusicPlayer
                 audioFileReader.Dispose();
             }
 
-            base.OnFormClosing(e);
+            //base.OnFormClosing(e);
         }
 
         private void volumeTrackBar_Scroll(object sender, EventArgs e)
