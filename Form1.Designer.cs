@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
+            b_pause = new Button();
             volumeTrackBar = new TrackBar();
             listView1 = new ListView();
-            b_pause = new Button();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)volumeTrackBar).BeginInit();
             SuspendLayout();
@@ -45,6 +45,16 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(644, 111);
             panel1.TabIndex = 0;
+            // 
+            // b_pause
+            // 
+            b_pause.Location = new Point(34, 24);
+            b_pause.Name = "b_pause";
+            b_pause.Size = new Size(204, 56);
+            b_pause.TabIndex = 1;
+            b_pause.Text = "Pause";
+            b_pause.UseVisualStyleBackColor = true;
+            b_pause.Click += b_pause_Click;
             // 
             // volumeTrackBar
             // 
@@ -62,20 +72,11 @@
             listView1.FullRowSelect = true;
             listView1.LabelWrap = false;
             listView1.Location = new Point(0, 0);
+            listView1.MultiSelect = false;
             listView1.Name = "listView1";
             listView1.Size = new Size(644, 759);
             listView1.TabIndex = 1;
             listView1.UseCompatibleStateImageBehavior = false;
-            // 
-            // b_pause
-            // 
-            b_pause.Location = new Point(34, 24);
-            b_pause.Name = "b_pause";
-            b_pause.Size = new Size(204, 56);
-            b_pause.TabIndex = 1;
-            b_pause.Text = "Pause";
-            b_pause.UseVisualStyleBackColor = true;
-            b_pause.Click += b_pause_Click;
             // 
             // Form1
             // 

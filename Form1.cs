@@ -70,27 +70,35 @@ namespace KMusicPlayer
 
         private void PlayAudioFile(string filePath)
         {
-            if (waveOut != null)
+            try
             {
-                waveOut.Stop();
-                waveOut.Dispose();
-                waveOut = null;
-            }
+                if (waveOut != null)
+                {
+                    waveOut.PlaybackStopped -= OnPlaybackStopped;
+                    waveOut.Stop();
+                    waveOut.Dispose();
+                    waveOut = null;
+                }
 
-            if (audioFileReader != null)
+                if (audioFileReader != null)
+                {
+                    audioFileReader.Dispose();
+                    audioFileReader = null;
+                }
+
+                audioFileReader = new AudioFileReader(filePath);
+                volumeProvider = new VolumeSampleProvider(audioFileReader);
+                volumeProvider.Volume = volumeTrackBar.Value / 100f; // Set initial volume
+                waveOut = new WaveOutEvent();
+                waveOut.Init(volumeProvider);
+                waveOut.Play();
+                waveOut.PlaybackStopped += OnPlaybackStopped;
+                b_pause.Text = "Pause";
+            }
+            catch (Exception ex)
             {
-                audioFileReader.Dispose();
-                audioFileReader = null;
+                MessageBox.Show("Exception: " + ex.Message);
             }
-
-            audioFileReader = new AudioFileReader(filePath);
-            volumeProvider = new VolumeSampleProvider(audioFileReader);
-            volumeProvider.Volume = volumeTrackBar.Value / 100f; // Set initial volume
-            waveOut = new WaveOutEvent();
-            waveOut.Init(volumeProvider);
-            waveOut.Play();
-            waveOut.PlaybackStopped += OnPlaybackStopped;
-            b_pause.Text = "Pause";
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
