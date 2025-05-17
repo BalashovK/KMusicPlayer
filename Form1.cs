@@ -152,10 +152,8 @@ namespace KMusicPlayer
                 volumeProvider.Volume = volumeTrackBar.Value / 100f;
             }
         }
-
         private void b_pause_Click(object sender, EventArgs e)
         {
-
             if (waveOut != null)
             {
                 if (b_pause.Text == "Pause")
@@ -166,9 +164,57 @@ namespace KMusicPlayer
                 }
                 else
                 {
-                    // resume the playback
-                    waveOut.Play();
-                    b_pause.Text = "Pause";
+                    try
+                    {
+                        waveOut.Play();
+                        b_pause.Text = "Pause";
+                    }
+                    catch (Exception)
+                    {
+                        // Attempt to recover from NAudio crash on resume
+                        long lastPosition = audioFileReader != null ? audioFileReader.Position : 0;
+                        string currentFile = null;
+                        if (listView1.SelectedItems.Count > 0)
+                        {
+                            int idx = listView1.SelectedItems[0].Index;
+                            if (idx >= 0 && idx < ctrl.files.Count)
+                                currentFile = ctrl.files[idx];
+                        }
+
+                        // Dispose old objects
+                        if (waveOut != null)
+                        {
+                            waveOut.PlaybackStopped -= OnPlaybackStopped;
+                            waveOut.Dispose();
+                            waveOut = null;
+                        }
+                        if (audioFileReader != null)
+                        {
+                            audioFileReader.Dispose();
+                            audioFileReader = null;
+                        }
+
+                        if (currentFile != null)
+                        {
+                            try
+                            {
+                                audioFileReader = new AudioFileReader(currentFile);
+                                if (lastPosition > 0 && lastPosition < audioFileReader.Length)
+                                    audioFileReader.Position = lastPosition;
+                                volumeProvider = new VolumeSampleProvider(audioFileReader);
+                                volumeProvider.Volume = volumeTrackBar.Value / 100f;
+                                waveOut = new WaveOutEvent();
+                                waveOut.Init(volumeProvider);
+                                waveOut.Play();
+                                waveOut.PlaybackStopped += OnPlaybackStopped;
+                                b_pause.Text = "Pause";
+                            }
+                            catch (Exception ex2)
+                            {
+                                MessageBox.Show("Failed to recover audio playback: " + ex2.Message);
+                            }
+                        }
+                    }
                 }
             }
         }
