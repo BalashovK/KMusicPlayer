@@ -1,5 +1,6 @@
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using TagLib;
 
 
 namespace KMusicPlayer
@@ -34,7 +35,33 @@ namespace KMusicPlayer
 
                 foreach (string file in ctrl.files)
                 {
-                    listView1.Items.Add(Path.GetFileName(file));
+                    string displayName = Path.GetFileName(file);
+                    string nameWithoutExt = Path.GetFileNameWithoutExtension(file);
+
+                    // Extract only letters from the filename (case-insensitive)
+                    string lettersOnly = new string(nameWithoutExt.Where(char.IsLetter).ToArray()).ToLower();
+
+                    // Check if the name contains no letters or only "track"
+                    if (string.IsNullOrEmpty(lettersOnly) || lettersOnly == "track")
+                    {
+                        try
+                        {
+                            using (var tagFile = TagLib.File.Create(file))
+                            {
+                                string title = tagFile.Tag.Title;
+                                if (!string.IsNullOrWhiteSpace(title))
+                                {
+                                    displayName += " - " + title;
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            // Ignore metadata errors, just show the filename
+                        }
+                    }
+
+                    listView1.Items.Add(displayName);
                 }
                 listView1.ItemActivate += ListView1_ItemActivate;
 
@@ -42,7 +69,7 @@ namespace KMusicPlayer
                 string fileName = Path.GetFileName(args[0]);
                 for (int i = 0; i < listView1.Items.Count; i++)
                 {
-                    if (listView1.Items[i].Text == fileName)
+                    if (listView1.Items[i].Text.StartsWith(fileName))
                     {
                         listView1.Items[i].Selected = true;
                         listView1.Items[i].EnsureVisible();
