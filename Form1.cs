@@ -121,6 +121,9 @@ namespace KMusicPlayer
                 waveOut.Play();
                 waveOut.PlaybackStopped += OnPlaybackStopped;
                 b_pause.Text = "Pause";
+
+                UpdateDurationLabel();
+                durationTimer.Start();
             }
             catch (Exception ex)
             {
@@ -221,6 +224,7 @@ namespace KMusicPlayer
 
         private void OnPlaybackStopped(object sender, StoppedEventArgs e)
         {
+            durationTimer.Stop();
             if (listView1.SelectedItems.Count > 0)
             {
                 int currentIndex = listView1.SelectedItems[0].Index;
@@ -233,6 +237,37 @@ namespace KMusicPlayer
                 listView1.Items[nextIndex].Selected = true;
                 listView1.Items[nextIndex].EnsureVisible();
                 PlayAudioFile(ctrl.files[nextIndex]);
+            }
+        }
+
+        private void durationTimer_Tick(object sender, EventArgs e)
+        {
+            UpdateDurationLabel();
+        }
+        private void UpdateDurationLabel()
+        {
+            if (audioFileReader != null)
+            {
+                int currentSec = (int)audioFileReader.CurrentTime.TotalSeconds;
+                int totalSec = (int)audioFileReader.TotalTime.TotalSeconds;
+                l_duration.Text = $"{currentSec} of {totalSec}";
+                progress.Maximum = totalSec;
+                progress.Value = currentSec;
+            }
+            else
+            {
+                l_duration.Text = "";
+                progress.Value = 0;
+            }
+        }
+
+        private void progress_Scroll(object sender, ScrollEventArgs e)
+        {
+            // change the position of the audio playback
+            if (audioFileReader != null && waveOut != null && waveOut.PlaybackState == PlaybackState.Playing)
+            {
+                TimeSpan newPosition = TimeSpan.FromSeconds(progress.Value);
+                audioFileReader.CurrentTime = newPosition;
             }
         }
     }
